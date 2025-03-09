@@ -49,8 +49,8 @@ for private_key in PRIVATE_KEYS:
         # Ambil saldo dan gas price
         balance = web3.eth.get_balance(wallet_address)
         gas_price = web3.eth.gas_price
-        print(f"Saldo Wallet: {web3.from_wei(balance, 'ether')} ETH")
-        print(f"Gas Price: {web3.from_wei(gas_price, 'gwei')} GWEI")
+        print(f"Saldo Wallet: {Web3.from_wei(web3.eth.get_balance(wallet_address), 'ether')} ETH")
+        print(f"Gas Price: {Web3.from_wei(web3.eth.gas_price, 'gwei')} GWEI")
 
         # Ambil nonce terbaru
         nonce = web3.eth.get_transaction_count(wallet_address)

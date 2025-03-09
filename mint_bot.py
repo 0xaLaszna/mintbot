@@ -4,7 +4,12 @@ import os
 from dotenv import load_dotenv
 # Load private key dari .env
 load_dotenv()
-PRIVATE_KEY = os.getenv("PRIVATE_KEY")
+
+PRIVATE_KEYS = os.getenv("PRIVATE_KEYS")
+if not PRIVATE_KEYS:
+    raise ValueError("PRIVATE_KEYS tidak ditemukan di .env!")
+
+PRIVATE_KEYS = PRIVATE_KEYS.split(",")  # Jika ingin multi-wallet
 
 from web3 import Web3
 

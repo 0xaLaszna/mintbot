@@ -56,7 +56,7 @@ for private_key in PRIVATE_KEYS:
         nonce = web3.eth.get_transaction_count(wallet_address)
 
         # Panggil fungsi minting
-   mint_txn = contract.functions.mint(1).build_transaction({
+mint_txn = contract.functions.mint(1).build_transaction({
     'from': wallet_address,
     'value': web3.to_wei(0.01, 'ether'),
     'gas': 300000,

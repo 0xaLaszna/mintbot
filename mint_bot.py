@@ -13,9 +13,6 @@ if not PRIVATE_KEYS:
 
 PRIVATE_KEYS = PRIVATE_KEYS.split(",")  # Pisahkan jika ada banyak
 
-print(f"Saldo Wallet: {web3.from_wei(web3.eth.get_balance(wallet_address), 'ether')} ETH")
-print(f"Gas Price: {web3.from_wei(web3.eth.gas_price, 'gwei')} GWEI")
-
 # Hubungkan ke node Arbitrum
 RPC_URL = os.getenv("RPC_URL")
 if not RPC_URL:
@@ -23,7 +20,7 @@ if not RPC_URL:
 
 web3 = Web3(Web3.HTTPProvider(RPC_URL))
 
-if not web3.isConnected():
+if not web3.is_connected():
     raise Exception("Gagal terhubung ke jaringan Arbitrum!")
 
 # Load ABI dari file JSON
@@ -48,29 +45,32 @@ for private_key in PRIVATE_KEYS:
         account = web3.eth.account.from_key(private_key)  # Inisialisasi akun
         wallet_address = account.address  # Ambil alamat wallet
         print(f"🔑 Menggunakan wallet: {wallet_address}")
-    except Exception as e:
-        print(f"❌ Gagal memproses private key: {private_key} - {str(e)}")
-        
+
+        # Ambil saldo dan gas price
+        balance = web3.eth.get_balance(wallet_address)
+        gas_price = web3.eth.gas_price
+        print(f"Saldo Wallet: {web3.from_wei(balance, 'ether')} ETH")
+        print(f"Gas Price: {web3.from_wei(gas_price, 'gwei')} GWEI")
+
         # Ambil nonce terbaru
         nonce = web3.eth.get_transaction_count(wallet_address)
 
         # Panggil fungsi minting
-mint_txn = contract.functions.mint(1).build_transaction({
-    'from': wallet_address,
-    'value': web3.to_wei(0.01, 'ether'),
-    'gas': 300000,
-    'maxPriorityFeePerGas': web3.to_wei('2', 'gwei'),
-    'maxFeePerGas': web3.to_wei('50', 'gwei'),
-    'nonce': web3.eth.get_transaction_count(wallet_address)
-
+        mint_txn = contract.functions.mint(1).build_transaction({
+            'from': wallet_address,
+            'value': web3.to_wei(0.01, 'ether'),
+            'gas': 300000,
+            'maxPriorityFeePerGas': web3.to_wei('2', 'gwei'),
+            'maxFeePerGas': web3.to_wei('50', 'gwei'),
+            'nonce': nonce
         })
 
-# Tanda tangani transaksi
-signed_txn = web3.eth.account.sign_transaction(mint_txn, private_key)
+        # Tanda tangani transaksi
+        signed_txn = web3.eth.account.sign_transaction(mint_txn, private_key)
 
-# Kirim transaksi ke blockchain
-tx_hash = web3.eth.send_raw_transaction(signed_txn.rawTransaction)
-    print(f"✅ Minting sukses! TX Hash: {web3.to_hex(tx_hash)}")
-
-except Exception as e:
-    print(f"❌ Gagal minting untuk {wallet_address}: {str(e)}")
+        # Kirim transaksi ke blockchain
+        tx_hash = web3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        print(f"✅ Minting sukses! TX Hash: {web3.to_hex(tx_hash)}")
+    
+    except Exception as e:
+        print(f"❌ Gagal minting untuk {wallet_address}: {str(e)}")

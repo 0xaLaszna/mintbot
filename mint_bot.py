@@ -20,7 +20,7 @@ if not RPC_URL:
 
 web3 = Web3(Web3.HTTPProvider(RPC_URL))
 
-if not web3.is_connected():
+if not web3.isConnected():
     raise Exception("Gagal terhubung ke jaringan Arbitrum!")
 
 # Load ABI dari file JSON

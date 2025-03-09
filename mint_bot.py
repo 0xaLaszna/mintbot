@@ -1,9 +1,10 @@
 from dotenv import load_dotenv
 import os
+import json
 from web3 import Web3
 
 # Load .env file
-load_dotenv()
+load_dotenv(override=True)
 
 # Ambil semua private key dari .env
 PRIVATE_KEYS = os.getenv("PRIVATE_KEYS")
@@ -14,30 +15,36 @@ PRIVATE_KEYS = PRIVATE_KEYS.split(",")  # Pisahkan jika ada banyak
 
 # Hubungkan ke node Arbitrum
 RPC_URL = os.getenv("RPC_URL")
+if not RPC_URL:
+    raise ValueError("RPC_URL tidak ditemukan di .env!")
+
 web3 = Web3(Web3.HTTPProvider(RPC_URL))
 
-if not web3.isConnected():
+if not web3.is_connected():
     raise Exception("Gagal terhubung ke jaringan Arbitrum!")
+
+# Load ABI dari file JSON
+CONTRACT_ADDRESS = os.getenv("CONTRACT_ADDRESS")
+if not CONTRACT_ADDRESS:
+    raise ValueError("CONTRACT_ADDRESS tidak ditemukan di .env!")
+
+with open("contract_abi.json", "r") as f:
+    contract_abi = json.load(f)
+
+# Inisialisasi kontrak
+contract = web3.eth.contract(address=CONTRACT_ADDRESS, abi=contract_abi)
 
 # Proses setiap private key
 for private_key in PRIVATE_KEYS:
-    account = web3.eth.account.from_key(private_key.strip())  # Inisialisasi akun
-    wallet_address = account.address  # Ambil alamat wallet
-    print(f"🔑 Menggunakan wallet: {wallet_address}")
+    private_key = private_key.strip().replace("0x", "")  # Hapus "0x" jika ada
 
-    # Mulai proses minting
     try:
-        contract_address = os.getenv("CONTRACT_ADDRESS")
-        if not contract_address:
-            raise ValueError("CONTRACT_ADDRESS tidak ditemukan di .env!")
+        account = web3.eth.account.from_key(private_key)  # Inisialisasi akun
+        wallet_address = account.address  # Ambil alamat wallet
+        print(f"🔑 Menggunakan wallet: {wallet_address}")
 
-        # Load ABI dari file JSON
-        import json
-        with open("contract_abi.json", "r") as f:
-            contract_abi = json.load(f)
-
-        # Inisialisasi kontrak
-        contract = web3.eth.contract(address=contract_address, abi=contract_abi)
+        # Ambil nonce terbaru
+        nonce = web3.eth.get_transaction_count(wallet_address)
 
         # Panggil fungsi minting
         mint_txn = contract.functions.mint().build_transaction({
@@ -45,11 +52,11 @@ for private_key in PRIVATE_KEYS:
             'value': web3.to_wei(0.01, 'ether'),  # Sesuaikan dengan biaya minting
             'gas': 300000,
             'gasPrice': web3.eth.gas_price,
-            'nonce': web3.eth.get_transaction_count(wallet_address)
+            'nonce': nonce
         })
 
         # Tanda tangani transaksi
-        signed_txn = web3.eth.account.sign_transaction(mint_txn, private_key.strip())
+        signed_txn = web3.eth.account.sign_transaction(mint_txn, private_key)
 
         # Kirim transaksi ke blockchain
         tx_hash = web3.eth.send_raw_transaction(signed_txn.rawTransaction)

@@ -19,8 +19,9 @@ assert web3.isConnected(), "Gagal terhubung ke jaringan!"
 print("Berhasil terhubung ke jaringan Arbitrum!")
 
 # Alamat kontrak dan ABI
-CONTRACT_ADDRESS = "0xYourNFTContractAddress"  # Ganti dengan alamat kontrak NFT Arbzukiswap
-ABI = json.loads('[...]')  # Masukkan ABI kontrak di sini
+CONTRACT_ADDRESS = "0x071126cBec1C5562530Ab85fD80dd3e3a42A70B8"  # Ganti dengan alamat kontrak NFT Arbzukiswap
+with open("contract_abi.json", "r") as file:
+    ABI = json.load(file)
 
 # Load smart contract
 contract = web3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)

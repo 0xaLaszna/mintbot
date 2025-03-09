@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 # Load private key dari .env
 load_dotenv()
 
+# Ambil semua private key dari .env
 PRIVATE_KEYS = os.getenv("PRIVATE_KEYS")
 if not PRIVATE_KEYS:
     raise ValueError("PRIVATE_KEYS tidak ditemukan di .env!")
@@ -22,6 +23,14 @@ web3 = Web3(Web3.HTTPProvider(RPC_URL))
 # Periksa koneksi
 assert web3.isConnected(), "Gagal terhubung ke jaringan!"
 print("Berhasil terhubung ke jaringan Arbitrum!")
+
+# Proses setiap private key
+for private_key in PRIVATE_KEYS:
+    account = web3.eth.account.from_key(private_key.strip())
+    wallet_address = account.address
+    print(f"🔑 Menggunakan wallet: {wallet_address}")
+
+    # Masukkan logika minting di sini...
 
 # Alamat kontrak dan ABI
 CONTRACT_ADDRESS = "0x071126cBec1C5562530Ab85fD80dd3e3a42A70B8"  # Ganti dengan alamat kontrak NFT Arbzukiswap

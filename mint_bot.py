@@ -6,12 +6,17 @@ from dotenv import load_dotenv
 load_dotenv()
 PRIVATE_KEY = os.getenv("PRIVATE_KEY")
 
-# Konfigurasi jaringan Arbzukiswap
-RPC_URL = "https://arbitrum.blockpi.network/v1/rpc/your-api-key"  # Ganti dengan RPC Arbitrum yang valid
+from web3 import Web3
+
+# Ganti dengan RPC URL dari jaringan Arbitrum
+RPC_URL = "https://arbitrum-one.publicnode.com"  
+
+# Hubungkan ke jaringan Arbitrum
 web3 = Web3(Web3.HTTPProvider(RPC_URL))
 
-# Pastikan koneksi berhasil
-assert web3.is_connected(), "Gagal terhubung ke jaringan!"
+# Periksa koneksi
+assert web3.isConnected(), "Gagal terhubung ke jaringan!"
+print("Berhasil terhubung ke jaringan Arbitrum!")
 
 # Alamat kontrak dan ABI
 CONTRACT_ADDRESS = "0xYourNFTContractAddress"  # Ganti dengan alamat kontrak NFT Arbzukiswap

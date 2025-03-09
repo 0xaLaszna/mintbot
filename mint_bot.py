@@ -13,6 +13,9 @@ if not PRIVATE_KEYS:
 
 PRIVATE_KEYS = PRIVATE_KEYS.split(",")  # Pisahkan jika ada banyak
 
+print(f"Saldo Wallet: {web3.from_wei(web3.eth.get_balance(wallet_address), 'ether')} ETH")
+print(f"Gas Price: {web3.from_wei(web3.eth.gas_price, 'gwei')} GWEI")
+
 # Hubungkan ke node Arbitrum
 RPC_URL = os.getenv("RPC_URL")
 if not RPC_URL:
@@ -53,12 +56,14 @@ for private_key in PRIVATE_KEYS:
         nonce = web3.eth.get_transaction_count(wallet_address)
 
         # Panggil fungsi minting
-        mint_txn = contract.functions.mint(1).build_transaction({
-            'from': wallet_address,
-            'value': web3.to_wei(0.01, 'ether'),  # Sesuaikan dengan biaya minting
-            'gas': 300000,
-            'gasPrice': web3.eth.gas_price,
-            'nonce': nonce
+       mint_txn = contract.functions.mint(1).build_transaction({
+    'from': wallet_address,
+    'value': web3.to_wei(0.01, 'ether'),
+    'gas': 300000,
+    'maxPriorityFeePerGas': web3.to_wei('2', 'gwei'),
+    'maxFeePerGas': web3.to_wei('50', 'gwei'),
+    'nonce': web3.eth.get_transaction_count(wallet_address)
+
         })
 
         # Tanda tangani transaksi

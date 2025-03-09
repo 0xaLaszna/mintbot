@@ -37,12 +37,18 @@ contract = web3.eth.contract(address=CONTRACT_ADDRESS, abi=contract_abi)
 # Proses setiap private key
 for private_key in PRIVATE_KEYS:
     private_key = private_key.strip().replace("0x", "")  # Hapus "0x" jika ada
+    if len(private_key) != 64:  # Private key harus 64 karakter
+        print(f"❌ Private key tidak valid: {private_key}")
+        continue
 
     try:
         account = web3.eth.account.from_key(private_key)  # Inisialisasi akun
         wallet_address = account.address  # Ambil alamat wallet
         print(f"🔑 Menggunakan wallet: {wallet_address}")
 
+    except Exception as e:
+        print(f"❌ Gagal memproses private key: {private_key} - {str(e)}")
+        
         # Ambil nonce terbaru
         nonce = web3.eth.get_transaction_count(wallet_address)
 
